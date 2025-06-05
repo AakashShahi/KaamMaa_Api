@@ -7,4 +7,9 @@ router.post(
     userController.regiterUser
 )
 
+router.post(
+    "/login",
+    userController.loginUser
+)
+
 module.exports = router

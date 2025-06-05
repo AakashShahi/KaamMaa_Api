@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
 exports.regiterUser = async (req, res) => {
-    const { username, email, firstName, lastName, password, role, profession, skills, location, availability, certificateUrl, isVerified, profilePic } = req.body
+    const { username, email, name, password, role, profession, skills, location, availability, certificateUrl, isVerified, profilePic } = req.body
 
     try {
         const existingUser = await User.findOne(
@@ -25,8 +25,7 @@ exports.regiterUser = async (req, res) => {
         const newUser = new User(
             {
                 username,
-                firstName,
-                lastName,
+                name,
                 email,
                 password: hashedPass,
                 role,
@@ -53,9 +52,62 @@ exports.regiterUser = async (req, res) => {
         )
 
     }
+}
+
+exports.loginUser = async (req, res) => {
+    const { email, password, username } = req.body
+    if (!password || (!email && !username)) {
+        return res.status(400).json(
+            {
+                "success": false,
+                "message": "Missing field"
+            }
+        )
+    }
+    try {
+        const getUser = await User.findOne(
+            {
+                $or: [{ "email": email }, { "username": username }]
+            }
+        )
+
+        if (!getUser) {
+            return res.status(400).json(
+                { "success": false, "message": "User not found" }
+            )
 
 
+        }
 
+        const passwordCheck = await bcrypt.compare(password, getUser.password)
+        if (!passwordCheck) {
+            return res.status(400).json(
+                { "success": false, "message": "Invalid Credentials" }
+            )
 
+        }
 
+        const payload = {
+            "_id": getUser._id,
+            "email": getUser.email,
+            "username": getUser.username,
+            "name": getUser.name,
+
+        }
+
+        const token = jwt.sign(payload, process.env.SECRET, { expiresIn: "7d" })
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Login Successful",
+                "data": getUser,
+                "token": token
+            }
+        )
+
+    } catch (error) {
+        return res.status(500).json(
+            { "success": false, "message": "Server error" }
+        )
+    }
 }

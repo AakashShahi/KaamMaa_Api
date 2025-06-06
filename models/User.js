@@ -10,7 +10,6 @@ const UserSchema = new mongoose.Schema(
         name: {
             type: String,
             trim: true,
-            required: true,
         },
         email: {
             type: String,
@@ -30,18 +29,14 @@ const UserSchema = new mongoose.Schema(
         },
         profession: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "ProfessionCategory", // make sure model name matches your category collection
-            required: function () {
-                return this.role === "worker";
-            },
+            ref: "ProfessionCategory", // profession is now optional
         },
         skills: {
             type: [String],
-            default: [], // Only relevant if role is worker
+            default: [],
         },
         location: {
             type: String,
-            required: true,
         },
         availability: {
             type: Boolean,
@@ -49,7 +44,7 @@ const UserSchema = new mongoose.Schema(
         },
         certificateUrl: {
             type: String,
-            default: "", // URL or path to uploaded certificate, worker only
+            default: "",
         },
         isVerified: {
             type: Boolean,

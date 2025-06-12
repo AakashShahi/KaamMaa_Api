@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+//Profession Schema
 const ProfessionCategorySchema = new mongoose.Schema(
     {
         name: {

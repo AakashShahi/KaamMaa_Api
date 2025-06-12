@@ -55,6 +55,7 @@ exports.regiterUser = async (req, res) => {
     }
 }
 
+// Login COntroller
 exports.loginUser = async (req, res) => {
     const { email, password, username } = req.body
     if (!password || (!email && !username)) {

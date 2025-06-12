@@ -2,6 +2,7 @@ const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
+//Registration COntroller
 exports.regiterUser = async (req, res) => {
     const { username, email, name, password, role, profession, skills, location, availability, certificateUrl, isVerified, profilePic } = req.body
 

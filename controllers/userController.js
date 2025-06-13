@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 
 //Registration COntroller
 exports.regiterUser = async (req, res) => {
-    const { username, email, name, password, role, profession, skills, location, availability, certificateUrl, isVerified, profilePic } = req.body
+    const { username, email, name, password, role, profession, skills, location, availability, certificateUrl, isVerified } = req.body
 
     try {
         const existingUser = await User.findOne(
@@ -22,6 +22,8 @@ exports.regiterUser = async (req, res) => {
         }
 
         const hashedPass = await bcrypt.hash(password, 10)
+        const profilePic = req.file?.path
+
 
         const newUser = new User(
             {
@@ -36,7 +38,7 @@ exports.regiterUser = async (req, res) => {
                 availability,
                 certificateUrl,
                 isVerified,
-                profilePic
+                profilePic: profilePic
             }
         )
 

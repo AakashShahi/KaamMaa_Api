@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const ChatSchema = mongoose.Schema(
+const ChatSchema = new mongoose.Schema(
     {
         jobId: { type: Schema.Types.ObjectId, ref: 'Job' },
         participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],

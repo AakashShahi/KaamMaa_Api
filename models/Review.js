@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 //Review Model
-const ReviewSchema = mongoose.Schema(
+const ReviewSchema = new mongoose.Schema(
     {
         jobId: { type: Schema.Types.ObjectId, ref: 'Job' },
         workerId: { type: Schema.Types.ObjectId, ref: 'User' },

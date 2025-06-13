@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 //Jobs schema
-const JobSchema = mongoose.Schema(
+const JobSchema = new mongoose.Schema(
     {
         postedBy: {
             type: Schema.Types.ObjectId,

@@ -55,6 +55,9 @@ const UserSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
+        phone: {
+            type: String,
+        }
     },
     {
         timestamps: true,

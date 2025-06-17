@@ -1,11 +1,11 @@
-const User = require("../../models/User");
-const bcrypt = require("bcrypt");
+const User = require("../../models/User")
+const bcrypt = require("bcrypt")
 
 // Create User
 exports.createUsers = async (req, res) => {
     const {
         username, email, name, password, role, profession,
-        skills, location, availability, certificateUrl, isVerified
+        skills, location, availability, certificateUrl, isVerified, phone
     } = req.body;
 
     try {
@@ -35,7 +35,8 @@ exports.createUsers = async (req, res) => {
             availability,
             certificateUrl,
             isVerified,
-            profilePic
+            profilePic,
+            phone
         });
 
         await newUser.save();
@@ -47,6 +48,7 @@ exports.createUsers = async (req, res) => {
         });
 
     } catch (e) {
+        console.log(e);
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -59,12 +61,24 @@ exports.createUsers = async (req, res) => {
 exports.getUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+
     const skip = (page - 1) * limit;
+
+    const searchQuery = search
+        ? {
+            $or: [
+                { username: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+                { name: { $regex: search, $options: "i" } }
+            ]
+        }
+        : {};
 
     try {
         const [users, total] = await Promise.all([
-            User.find().skip(skip).limit(limit),
-            User.countDocuments()
+            User.find(searchQuery).skip(skip).limit(limit),
+            User.countDocuments(searchQuery)
         ]);
 
         return res.status(200).json({
@@ -86,6 +100,7 @@ exports.getUsers = async (req, res) => {
         });
     }
 };
+
 
 
 // Get One User

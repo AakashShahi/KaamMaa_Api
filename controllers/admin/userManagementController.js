@@ -55,14 +55,28 @@ exports.createUsers = async (req, res) => {
     }
 };
 
-// Get All Users
+// Get All Users with Pagination
 exports.getUsers = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     try {
-        const users = await User.find();
+        const [users, total] = await Promise.all([
+            User.find().skip(skip).limit(limit),
+            User.countDocuments()
+        ]);
+
         return res.status(200).json({
             success: true,
             message: "Users fetched successfully",
-            data: users
+            data: users,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
         });
     } catch (error) {
         return res.status(500).json({
@@ -72,6 +86,7 @@ exports.getUsers = async (req, res) => {
         });
     }
 };
+
 
 // Get One User
 exports.getOneUser = async (req, res) => {

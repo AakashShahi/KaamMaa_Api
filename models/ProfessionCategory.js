@@ -10,13 +10,15 @@ const ProfessionCategorySchema = new mongoose.Schema(
             trim: true,
         },
         icon: {
-            type: String, // Optional: URL or emoji/icon string
+            type: String,
             default: "",
         },
-        createdAt: {
-            type: Date,
-            default: Date.now,
+        category: {
+            type: String,
         },
+        description: {
+            type: String
+        }
     },
     {
         timestamps: true,

@@ -77,7 +77,7 @@ exports.getUsers = async (req, res) => {
 
     try {
         const [users, total] = await Promise.all([
-            User.find(searchQuery).skip(skip).limit(limit),
+            User.find(searchQuery).populate("profession", "category").skip(skip).limit(limit),
             User.countDocuments(searchQuery)
         ]);
 

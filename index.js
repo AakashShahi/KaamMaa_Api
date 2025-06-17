@@ -4,6 +4,7 @@ const express = require('express')
 const connectDB = require("./config/db")
 const userRouter = require("./routes/userRoutes")
 const adminUserRoutes = require("./routes/admin/adminUserRoute")
+const adminProfessionRoutes = require("./routes/admin/adminProfessionRoute")
 const path = require("path")
 
 //Cors Setup
@@ -26,6 +27,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 //User rgistration/login Route
 app.use("/api/auth", userRouter)
 app.use("/api/admin/users", adminUserRoutes)
+app.use("/api/admin/profession", adminProfessionRoutes)
 
 const PORT = process.env.PORT
 app.listen(

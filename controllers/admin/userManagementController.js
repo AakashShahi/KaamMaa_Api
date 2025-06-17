@@ -1,163 +1,161 @@
-// CRUD
-const User = require("../../models/User")
-const bcrypt = require("bcrypt")
+const User = require("../../models/User");
+const bcrypt = require("bcrypt");
 
-//Create
+// Create User
 exports.createUsers = async (req, res) => {
-    const { username, email, name, password, role, profession, skills, location, availability, certificateUrl, isVerified } = req.body
+    const {
+        username, email, name, password, role, profession,
+        skills, location, availability, certificateUrl, isVerified
+    } = req.body;
 
     try {
-        const existingUser = await User.findOne(
-            {
-                $or: [{ username: username }, { email: email }]
-            }
-        )
-
+        const existingUser = await User.findOne({
+            $or: [{ username }, { email }]
+        });
 
         if (existingUser) {
-            return res.status(400).json(
-                {
-                    "success": false, "message": "Email or username already in use"
-                }
-            )
+            return res.status(400).json({
+                success: false,
+                message: "Email or username already in use"
+            });
         }
 
-        const hashedPass = await bcrypt.hash(password, 10)
-        const profilePic = req.file?.path
+        const hashedPass = await bcrypt.hash(password, 10);
+        const profilePic = req.file?.path;
 
-        const newUser = new User(
-            {
-                username,
-                name,
-                email,
-                password: hashedPass,
-                role,
-                profession,
-                skills,
-                location,
-                availability,
-                certificateUrl,
-                isVerified,
-                profilePic: profilePic
-            }
-        )
+        const newUser = new User({
+            username,
+            name,
+            email,
+            password: hashedPass,
+            role,
+            profession,
+            skills,
+            location,
+            availability,
+            certificateUrl,
+            isVerified,
+            profilePic
+        });
 
-        await newUser.save()
+        await newUser.save();
 
-        return res.status(200).json(
-            { "success": true, "message": `${role} registered` }
-        )
+        return res.status(201).json({
+            success: true,
+            message: `${role} registered`,
+            data: newUser
+        });
 
     } catch (e) {
-        return res.status(500).json(
-            {
-                "success": false,
-                "message": "Server error"
-            }
-        )
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: e.message
+        });
     }
-}
+};
 
-//Read All
+// Get All Users
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find();
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "data fetched",
-                "data": users
-            }
-        )
+        return res.status(200).json({
+            success: true,
+            message: "Users fetched successfully",
+            data: users
+        });
     } catch (error) {
-        return res.status(500).json(
-
-            {
-                "success": false,
-                "message": "Server error"
-            }
-        )
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
     }
-}
+};
 
-//Read One
+// Get One User
 exports.getOneUser = async (req, res) => {
     try {
-        const _id = req.params.id // use mongo id
-        const user = await User.findById(_id)
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "One User found",
-                "data": user
-            }
-        )
-    } catch (error) {
-        return res.status(500).json(
-            {
-                "success": false,
-                "message": "Server error"
-            }
-        )
-    }
-}
+        const _id = req.params.id;
+        const user = await User.findById(_id);
 
-//update 
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User found",
+            data: user
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
+// Update One User
 exports.updateOneUser = async (req, res) => {
-    const { name } = req.body
-    const _id = req.params.id
+    const _id = req.params.id;
+    const updateData = {
+        ...req.body,
+        ...(req.file?.path && { profilePic: req.file.path })
+    };
+
     try {
-        const user = await User.updateOne(
-            {
-                "_id": _id
-            },
-            {
-                $set: {
-                    "name": name
-                }
-            }
-        )
+        const user = await User.findByIdAndUpdate(_id, updateData, { new: true });
 
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "One User Updated",
-                "data": user
-            }
-        )
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            data: user
+        });
     } catch (error) {
-        return res.status(500).json(
-            {
-                "success": false,
-                "message": "Server error"
-            }
-        )
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
     }
-}
+};
 
-//delete
-
+// Delete One User
 exports.deleteOneUser = async (req, res) => {
+    const _id = req.params.id;
+
     try {
-        const _id = req.params.id
-        const user = await User.deleteOne(
-            {
-                "_id": _id
-            }
-        )
-        return res.status(200).json(
-            {
-                "success": true,
-                "message": "One User deleted",
-            }
-        )
+        const user = await User.findByIdAndDelete(_id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User deleted successfully"
+        });
 
     } catch (error) {
-        return res.status(500).json(
-            {
-                "success": false,
-                "message": "Server error"
-            }
-        )
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
     }
-}
+};

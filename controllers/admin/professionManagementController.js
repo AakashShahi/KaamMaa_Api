@@ -5,7 +5,7 @@ exports.createProfession = async (req, res) => {
     const { name, category, description } = req.body;
 
     try {
-        const existingProfession = await Profession.findOne({ name });
+        const existingProfession = await Profession.findOne({ category });
 
         if (existingProfession) {
             return res.status(400).json({

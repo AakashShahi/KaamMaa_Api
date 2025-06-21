@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const authenticateUser = require("../../middlewares/authorizedUser");
-const authenticateUser = require("../../middlewares/authorizedUser");
 
 const jobController = require("../../controllers/worker/workerJobController");
 
@@ -9,7 +8,7 @@ const jobController = require("../../controllers/worker/workerJobController");
 router.get("/jobs/public", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.getPublicJobs);
 
 // Worker requests to accept a public job
-router.post("/jobs/public/:jobId/accept", aauthenticateUser.authenticateUser, authenticateUser.isWorker, jobController.acceptPublicJob);
+router.post("/jobs/public/:jobId/accept", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.acceptPublicJob);
 
 // View assigned jobs (manually assigned, status: "assigned")
 router.get("/jobs/assigned", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.getAssignedJobs);

@@ -1,33 +1,48 @@
 const mongoose = require("mongoose");
 
-//Jobs schema
 const JobSchema = new mongoose.Schema(
     {
         postedBy: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true
+            required: true,
         },
         assignedTo: {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
         },
         category: {
-            type: Schema.Types.ObjectId,
-            ref: 'ProfessionCategory'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'ProfessionCategory',
         },
         description: String,
         location: String,
-        time: Date,
+        date: {
+            type: String, // Format: "YYYY-MM-DD"
+            required: true,
+        },
+        time: {
+            type: String, // Format: "HH:mm" or "HH:mm:ss"
+            required: true,
+        },
+
         status: {
             type: String,
-            enum: ['open', 'in-progress', 'done', 'failed'],
-            default: 'open'
+            enum: ['open', 'assigned', 'requested', 'in-progress', 'done', 'rejected', 'failed'],
+            default: 'open',
         },
         review: {
-            rating: Number,
-            comment: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Review",
         },
+        deletedByCustomer: {
+            type: Boolean,
+            default: false,
+        },
+        deletedByWorker: {
+            type: Boolean,
+            default: false,
+        }
     },
     {
         timestamps: true,

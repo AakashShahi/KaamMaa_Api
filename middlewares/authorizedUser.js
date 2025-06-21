@@ -68,3 +68,17 @@ exports.isCustomer = async (req, res, next) => {
         )
     }
 }
+
+exports.isWorker = async (req, res, next) => {
+    if (req.user && req.user.role == "worker") {
+        next()
+    }
+    else {
+        return res.status(403).json(
+            {
+                "sucess": false,
+                "message": "Worker privilage required"
+            }
+        )
+    }
+}

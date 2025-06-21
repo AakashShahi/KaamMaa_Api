@@ -29,10 +29,4 @@ app.use("/api/auth", userRouter)
 app.use("/api/admin/users", adminUserRoutes)
 app.use("/api/admin/profession", adminProfessionRoutes)
 
-const PORT = process.env.PORT
-app.listen(
-    PORT,
-    () => {
-        console.log("Server Running");
-    }
-)
+module.exports = app

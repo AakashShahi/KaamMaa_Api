@@ -1,14 +1,14 @@
-const cron = require("node-cron");
 const Job = require("../../models/Job");
+const cron = require("node-cron");
+const moment = require("moment");
 
 function startJobExpiryCron() {
-    cron.schedule("*/10 * * * *", async () => {
+    cron.schedule("* * * * *", async () => {
         console.log("⏰ Checking for expired jobs...");
 
         const now = new Date();
 
         try {
-            // Get candidate jobs
             const jobs = await Job.find({
                 status: { $in: ["assigned", "in-progress", "requested"] },
             });
@@ -16,8 +16,8 @@ function startJobExpiryCron() {
             let failedCount = 0;
 
             for (const job of jobs) {
-                // Combine date + time into one Date object
-                const jobDateTime = new Date(`${job.date}T${job.time}`);
+                const jobDateTime = moment(`${job.date} ${job.time}`, "YYYY-M-D HH:mm").toDate();
+                console.log(`Checking job at ${jobDateTime}, now is ${now}`);
 
                 if (jobDateTime < now) {
                     job.status = "failed";
@@ -34,3 +34,4 @@ function startJobExpiryCron() {
 }
 
 module.exports = startJobExpiryCron;
+

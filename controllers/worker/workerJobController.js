@@ -81,9 +81,15 @@ exports.getInProgressJobs = async (req, res) => {
             .populate("category", "name")
             .sort({ createdAt: -1 });
 
-        res.status(200).json(jobs);
+        return res.status(200).json(
+            {
+                success: true,
+                message: "In progress Jobs fetched successfully",
+                data: jobs
+            }
+        );
     } catch (err) {
-        res.status(500).json({ message: "Failed to fetch in-progress jobs", error: err.message });
+        return res.status(500).json({ message: "Failed to fetch in-progress jobs", error: err.message });
     }
 };
 

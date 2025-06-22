@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema(
         },
         profession: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "ProfessionCategory", // profession is now optional
+            ref: "ProfessionCategory",
         },
         skills: {
             type: [String],

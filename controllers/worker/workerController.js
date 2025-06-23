@@ -3,7 +3,9 @@ const bcrypt = require("bcrypt")
 
 exports.getWorkerProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password");
+        const user = await User.findById(req.user.id)
+            .select("-password")
+            .populate('profession');
 
         if (!user || user.role !== "worker") {
             return res.status(404).json({ message: "Worker not found" });
@@ -23,21 +25,54 @@ exports.getWorkerProfile = async (req, res) => {
 exports.updateWorkerProfile = async (req, res) => {
     try {
         const allowedUpdates = [
-            "name", "skills", "location", "availability",
-            "certificateUrl", "phone", "profilePic", "profession"
+            "name",
+            "skills",
+            "location",
+            "availability",
+            "certificateUrl", // optional
+            "phone",
+            "profession",
         ];
 
         const updates = {};
+
+        // Parse and apply each allowed update
         for (let key of allowedUpdates) {
             if (req.body[key] !== undefined) {
-                updates[key] = req.body[key];
+                if (key === "skills") {
+                    try {
+                        const parsedSkills = JSON.parse(req.body.skills);
+                        updates.skills = Array.isArray(parsedSkills)
+                            ? parsedSkills.filter(
+                                (skill) =>
+                                    typeof skill === "string" &&
+                                    skill.trim().length > 0
+                            )
+                            : [];
+                    } catch (err) {
+                        console.warn("Invalid skills format:", req.body.skills);
+                        updates.skills = [];
+                    }
+                } else {
+                    updates[key] = req.body[key];
+                }
+            }
+        }
+
+        // Handle uploaded files (profile_pic and certificate)
+        if (req.files) {
+            if (req.files["profile_pic"] && req.files["profile_pic"][0]) {
+                updates.profilePic = req.files["profile_pic"][0].path;
+            }
+            if (req.files["certificate"] && req.files["certificate"][0]) {
+                updates.certificateUrl = req.files["certificate"][0].path;
             }
         }
 
         const updatedUser = await User.findByIdAndUpdate(req.user.id, updates, {
             new: true,
             runValidators: true,
-            context: "query"
+            context: "query",
         }).select("-password");
 
         if (!updatedUser || updatedUser.role !== "worker") {
@@ -47,7 +82,7 @@ exports.updateWorkerProfile = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Worker details updated",
-            data: updatedUser
+            data: updatedUser,
         });
     } catch (err) {
         console.error("Error updating worker profile:", err);

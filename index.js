@@ -8,6 +8,8 @@ const adminProfessionRoutes = require("./routes/admin/adminProfessionRoute")
 const customerJobRouter = require("./routes/customer/customerJobRoute")
 const workerJobRouter = require("./routes/worker/workerJobRoute")
 const workerProfileRouter = require("./routes/worker/workerProfileRoute")
+const workerProfessionRouter = require("./routes/worker/workerProfessionRoute")
+
 const path = require("path")
 
 //Cors Setup
@@ -29,11 +31,19 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 //User rgistration/login Route
 app.use("/api/auth", userRouter)
+
+//Admin Management
 app.use("/api/admin/users", adminUserRoutes)
 app.use("/api/admin/profession", adminProfessionRoutes)
+
+//Worker CRUD route
 app.use("/api/worker", workerJobRouter)
-app.use("/api/customer", customerJobRouter)
 app.use("/api/worker/profile", workerProfileRouter)
+app.use("/api/worker/profession", workerProfessionRouter)
+
+
+//Customer CRUD route
+app.use("/api/customer", customerJobRouter)
 
 
 module.exports = app

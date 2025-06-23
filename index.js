@@ -5,8 +5,9 @@ const connectDB = require("./config/db")
 const userRouter = require("./routes/userRoutes")
 const adminUserRoutes = require("./routes/admin/adminUserRoute")
 const adminProfessionRoutes = require("./routes/admin/adminProfessionRoute")
-const customerRouter = require("./routes/customer/customerJobRoute")
-const workerRouter = require("./routes/worker/workerJobRoute")
+const customerJobRouter = require("./routes/customer/customerJobRoute")
+const workerJobRouter = require("./routes/worker/workerJobRoute")
+const workerProfileRouter = require("./routes/worker/workerProfileRoute")
 const path = require("path")
 
 //Cors Setup
@@ -30,8 +31,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 app.use("/api/auth", userRouter)
 app.use("/api/admin/users", adminUserRoutes)
 app.use("/api/admin/profession", adminProfessionRoutes)
-app.use("/api/worker", workerRouter)
-app.use("/api/customer", customerRouter)
+app.use("/api/worker", workerJobRouter)
+app.use("/api/customer", customerJobRouter)
+app.use("/api/worker/profile", workerProfileRouter)
 
 
 module.exports = app

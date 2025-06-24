@@ -93,6 +93,64 @@ exports.acceptPublicJob = async (req, res) => {
     }
 };
 
+//Get requested Jobs
+exports.getRequestedJobs = async (req, res) => {
+    try {
+        const jobs = await Job.find({
+            assignedTo: req.user._id,
+            status: "requested",
+            deletedByWorker: false
+        })
+            .populate("postedBy", "name location")
+            .populate("category", "name icon")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: "Requested jobs fetched successfully",
+            data: jobs
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to fetch requested jobs", error: err.message });
+    }
+};
+
+//cancel request
+exports.cancelRequestedJob = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+
+        const job = await Job.findById(jobId);
+
+        if (!job) {
+            return res.status(404).json({ message: "Job not found" });
+        }
+
+        // Validate: Only the requesting worker can cancel
+        if (
+            job.assignedTo?.toString() !== req.user._id.toString() ||
+            job.status !== "requested"
+        ) {
+            return res.status(403).json({ message: "You are not authorized to cancel this job" });
+        }
+
+        // Reset the assignment
+        job.assignedTo = null;
+        job.status = "open";
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Job request cancelled successfully",
+            job
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to cancel job", error: err.message });
+    }
+};
+
 // View assigned jobs
 exports.getAssignedJobs = async (req, res) => {
     try {
@@ -102,10 +160,16 @@ exports.getAssignedJobs = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name location")
-            .populate("category", "name")
+            .populate("category", "name icon")
             .sort({ createdAt: -1 });
 
-        res.status(200).json(jobs);
+        res.status(200).json(
+            {
+                success: true,
+                message: "Job request cancelled successfully",
+                data: jobs
+            }
+        );
     } catch (err) {
         res.status(500).json({ message: "Failed to fetch assigned jobs", error: err.message });
     }
@@ -120,7 +184,7 @@ exports.getInProgressJobs = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name location")
-            .populate("category", "name")
+            .populate("category", "name icon")
             .sort({ createdAt: -1 });
 
         return res.status(200).json(
@@ -172,7 +236,7 @@ exports.rejectAssignedJob = async (req, res) => {
             return res.status(403).json({ message: "Not authorized for this job." });
         }
 
-        job.status = "rejected";
+        job.status = "open";
         job.assignedTo = null;
         await job.save();
 
@@ -214,5 +278,46 @@ exports.softDeleteJobByWorker = async (req, res) => {
         res.status(200).json({ message: "Job deleted from worker view" });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+// Get completed jobs for the worker
+exports.getCompletedJobs = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || "";
+
+        const skip = (page - 1) * limit;
+
+        const filter = {
+            assignedTo: req.user._id,
+            status: "done",
+            deletedByWorker: false,
+            description: { $regex: search, $options: "i" },
+        };
+
+        const jobs = await Job.find(filter)
+            .populate("postedBy", "name location")
+            .populate("category", "name icon")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Job.countDocuments(filter);
+
+        res.status(200).json({
+            success: true,
+            message: "Completed jobs fetched successfully",
+            data: jobs,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch completed jobs", error: err.message });
     }
 };

@@ -32,7 +32,7 @@ const JobSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ['open', 'assigned', 'requested', 'in-progress', 'done', 'rejected', 'failed'],
+            enum: ['open', 'assigned', 'requested', 'in-progress', 'done', 'failed'],
             default: 'open',
         },
         review: {

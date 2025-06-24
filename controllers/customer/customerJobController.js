@@ -244,24 +244,6 @@ exports.getOpenJobsByCustomer = async (req, res) => {
     }
 };
 
-//get all rejected job
-exports.getRejectedJobsForCustomer = async (req, res) => {
-    try {
-        const jobs = await Job.find({
-            postedBy: req.user._id,
-            status: "rejected",
-            deletedByCustomer: false
-        })
-            .populate("assignedTo", "name email")
-            .populate("category", "name")
-            .sort({ createdAt: -1 });
-
-        res.status(200).json(jobs);
-    } catch (err) {
-        res.status(500).json({ message: "Failed to fetch rejected jobs", error: err.message });
-    }
-};
-
 exports.updateJob = async (req, res) => {
     try {
         const { jobId } = req.params;

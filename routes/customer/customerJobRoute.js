@@ -16,9 +16,6 @@ router.get("/jobs/requested", authorizeUser.authenticateUser, authorizeUser.isCu
 // Get failed jobs (not completed or rejected)
 router.get("/jobs/failed", authorizeUser.authenticateUser, authorizeUser.isCustomer, jobController.getFailedJobsForCustomer);
 
-// Get rejected jobs
-router.get("/jobs/rejected", authorizeUser.authenticateUser, authorizeUser.isCustomer, jobController.getRejectedJobsForCustomer);
-
 // Assign job manually to a worker
 router.post("/jobs/assign", authorizeUser.authenticateUser, authorizeUser.isCustomer, jobController.assignJob);
 

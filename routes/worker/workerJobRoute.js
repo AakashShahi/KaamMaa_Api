@@ -13,6 +13,13 @@ router.post("/jobs/public/:jobId/accept", authenticateUser.authenticateUser, aut
 // View assigned jobs (manually assigned, status: "assigned")
 router.get("/jobs/assigned", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.getAssignedJobs);
 
+// Worker cancels a requested job
+router.patch("/jobs/requested/cancel/:jobId", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.cancelRequestedJob);
+
+// View requested jobs (status: "requested")
+router.get("/jobs/requested", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.getRequestedJobs);
+
+
 // Worker accepts manually assigned job
 router.put("/jobs/assigned/:jobId/accept", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.acceptAssignedJob);
 
@@ -27,5 +34,12 @@ router.get("/jobs/failed", authenticateUser.authenticateUser, authenticateUser.i
 
 // Soft delete job (hide from worker view)
 router.delete("/jobs/:jobId/soft-delete", authenticateUser.authenticateUser, authenticateUser.isWorker, jobController.softDeleteJobByWorker);
+
+router.get(
+    "/jobs/completed",
+    authenticateUser.authenticateUser,
+    authenticateUser.isWorker,
+    jobController.getCompletedJobs
+);
 
 module.exports = router;

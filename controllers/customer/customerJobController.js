@@ -7,6 +7,22 @@ exports.postPublicJob = async (req, res) => {
     try {
         const { category, description, location, time, date } = req.body;
 
+        // Check if date and time are valid and not in the past
+        if (!date || !time) {
+            return res.status(400).json({ message: "Date and time are required" });
+        }
+
+        // Combine date and time strings into a Date object
+        const jobDateTime = new Date(`${date}T${time}`);
+
+        // Get current date and time
+        const now = new Date();
+
+        // Check if jobDateTime is in the past
+        if (jobDateTime < now) {
+            return res.status(400).json({ message: "You cannot set a past date and time for the job" });
+        }
+
         // Get the profession category to extract icon
         const profession = await ProfessionCategory.findById(category);
         if (!profession) {
@@ -20,7 +36,7 @@ exports.postPublicJob = async (req, res) => {
             date,
             location,
             time,
-            icon: profession.icon, // ✅ Set the icon from category
+            icon: profession.icon,
         });
 
         await job.save();

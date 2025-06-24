@@ -4,30 +4,72 @@ const ProfessionCategory = require("../../models/ProfessionCategory");
 // Worker sees available public jobs
 exports.getPublicJobs = async (req, res) => {
     try {
-        const worker = req.user;
-
-        if (!worker.profession || !worker.location) {
-            return res.status(400).json({
-                message: "Worker must have both profession and location set to see matching jobs.",
-            });
-        }
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
+        const categoryName = req.query.category || "";
+        const location = req.query.location || "";
 
         const filter = {
             assignedTo: null,
             status: "open",
-            category: worker.profession,
-            location: { $regex: worker.location, $options: "i" }, // fuzzy match for city/area
+            description: { $regex: search, $options: "i" },
+            ...(location && { location: { $regex: location, $options: "i" } }),
         };
 
-        const publicJobs = await Job.find(filter)
-            .populate("category", "name")
-            .populate("postedBy", "name location")
-            .sort({ createdAt: -1 });
+        // If categoryName is provided, find matching category IDs first
+        if (categoryName) {
+            // Find category IDs matching the category name (case-insensitive)
+            const categories = await ProfessionCategory.find({
+                name: { $regex: `^${categoryName}$`, $options: "i" },
+            }).select("_id");
 
-        res.status(200).json(publicJobs);
+            // Extract category IDs
+            const categoryIds = categories.map((c) => c._id);
+
+            if (categoryIds.length > 0) {
+                filter.category = { $in: categoryIds };
+            } else {
+                // No matching categories found, so no jobs will match
+                return res.status(200).json({
+                    success: true,
+                    message: "No jobs found for this category",
+                    data: [],
+                    pagination: {
+                        total: 0,
+                        page,
+                        limit,
+                        totalPages: 0,
+                    },
+                });
+            }
+        }
+
+        const skip = (page - 1) * limit;
+
+        const publicJobs = await Job.find(filter)
+            .populate("category", "name icon")
+            .populate("postedBy", "name location")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Job.countDocuments(filter);
+
+        res.status(200).json({
+            success: true,
+            message: "Public jobs fetched successfully",
+            data: publicJobs,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Failed to fetch matching jobs", details: err.message });
+        res.status(500).json({ error: "Failed to fetch public jobs", details: err.message });
     }
 };
 

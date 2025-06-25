@@ -1,5 +1,6 @@
 const Job = require("../../models/Job");
 const ProfessionCategory = require("../../models/ProfessionCategory");
+const Notification = require("../../models/Notification");
 
 // Worker sees available public jobs
 exports.getPublicJobs = async (req, res) => {
@@ -86,6 +87,13 @@ exports.acceptPublicJob = async (req, res) => {
         job.assignedTo = req.user._id;
         job.status = "requested";
         await job.save();
+
+        await Notification.create({
+            userId: job.postedBy,
+            title: "New Job Request",
+            body: `Worker has requested your job: "${job.description.substring(0, 50)}..."`,
+            seen: false,
+        });
 
         res.status(200).json({ message: "Job request sent. Awaiting customer approval.", job });
     } catch (err) {

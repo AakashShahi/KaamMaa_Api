@@ -15,7 +15,7 @@ exports.getAllReviewsForAdmin = async (req, res) => {
         const reviews = await Review.find(filter)
             .populate("workerId", "name email")
             .populate("customerId", "name email")
-            .populate("jobId", "description date time icon location")
+            .populate("jobId", "description date time icon location status")
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit);

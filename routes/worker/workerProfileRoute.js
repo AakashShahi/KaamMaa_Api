@@ -16,5 +16,22 @@ router.put("/", upload.fields([
 // Change password for logged-in worker
 router.put("/change-password", authenticateUser.authenticateUser, authenticateUser.isWorker, profileController.changeWorkerPassword);
 
+// Apply for verification
+router.post(
+    "/apply-verification",
+    authenticateUser.authenticateUser,
+    authenticateUser.isWorker,
+    profileController.applyForVerification
+);
+
+// Cancel verification request
+router.post(
+    "/cancel-verification",
+    authenticateUser.authenticateUser,
+    authenticateUser.isWorker,
+    profileController.cancelVerificationRequest
+);
+
+
 module.exports = router;
 

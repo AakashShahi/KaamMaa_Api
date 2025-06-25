@@ -121,3 +121,58 @@ exports.changeWorkerPassword = async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+exports.applyForVerification = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user || user.role !== "worker") {
+            return res.status(404).json({ success: false, message: "Worker not found" });
+        }
+
+        if (!user.certificateUrl || user.certificateUrl.trim() === "") {
+            return res.status(400).json({ success: false, message: "You must upload a certificate before applying for verification." });
+        }
+
+        if (user.verificationRequest) {
+            return res.status(400).json({ success: false, message: "You have already applied for verification." });
+        }
+
+        user.verificationRequest = true;
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Verification request submitted successfully.",
+        });
+    } catch (err) {
+        console.error("Error applying for verification:", err);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+exports.cancelVerificationRequest = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user || user.role !== "worker") {
+            return res.status(404).json({ success: false, message: "Worker not found" });
+        }
+
+        if (!user.verificationRequest) {
+            return res.status(400).json({ success: false, message: "You have not applied for verification." });
+        }
+
+        user.verificationRequest = false;
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Verification request has been cancelled.",
+        });
+    } catch (err) {
+        console.error("Error cancelling verification:", err);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+

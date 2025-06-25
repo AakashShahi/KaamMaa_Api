@@ -9,6 +9,7 @@ const customerJobRouter = require("./routes/customer/customerJobRoute")
 const workerJobRouter = require("./routes/worker/workerJobRoute")
 const workerProfileRouter = require("./routes/worker/workerProfileRoute")
 const workerProfessionRouter = require("./routes/worker/workerProfessionRoute")
+const workerReviewRouter = require("./routes/worker/workerReviewRoute")
 
 const path = require("path")
 
@@ -40,6 +41,8 @@ app.use("/api/admin/profession", adminProfessionRoutes)
 app.use("/api/worker", workerJobRouter)
 app.use("/api/worker/profile", workerProfileRouter)
 app.use("/api/worker/profession", workerProfessionRouter)
+app.use("/api/worker/reviews", workerReviewRouter)
+
 
 
 //Customer CRUD route

@@ -254,10 +254,16 @@ exports.getFailedJobsForWorker = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name email")
-            .populate("category", "name")
+            .populate("category", "name icon")
             .sort({ createdAt: -1 });
 
-        res.status(200).json(jobs);
+        res.status(200).json(
+            {
+                success: true,
+                message: "Requested jobs fetched successfully",
+                data: jobs
+            }
+        );
     } catch (err) {
         res.status(500).json({ message: "Failed to fetch failed jobs", error: err.message });
     }
@@ -300,6 +306,7 @@ exports.getCompletedJobs = async (req, res) => {
         const jobs = await Job.find(filter)
             .populate("postedBy", "name location")
             .populate("category", "name icon")
+            .populate("review", "rating comment")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);

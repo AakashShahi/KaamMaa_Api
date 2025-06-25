@@ -8,6 +8,7 @@ const ReviewSchema = new mongoose.Schema(
         customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         rating: { type: Number, required: true },
         comment: String,
+        deletedByWorker: { type: Boolean, default: false }
     },
     {
         timestamps: true,

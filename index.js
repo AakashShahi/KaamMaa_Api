@@ -10,6 +10,8 @@ const workerJobRouter = require("./routes/worker/workerJobRoute")
 const workerProfileRouter = require("./routes/worker/workerProfileRoute")
 const workerProfessionRouter = require("./routes/worker/workerProfessionRoute")
 const workerReviewRouter = require("./routes/worker/workerReviewRoute")
+const adminVerificationRouter = require("./routes/admin/adminVerifiicationRoute")
+const adminReviewRouter = require("./routes/admin/adminReviewRoue")
 
 const path = require("path")
 
@@ -36,6 +38,8 @@ app.use("/api/auth", userRouter)
 //Admin Management
 app.use("/api/admin/users", adminUserRoutes)
 app.use("/api/admin/profession", adminProfessionRoutes)
+app.use("/api/admin/verification", adminVerificationRouter)
+app.use("/api/admin/review", adminReviewRouter)
 
 //Worker CRUD route
 app.use("/api/worker", workerJobRouter)

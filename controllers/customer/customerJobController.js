@@ -248,7 +248,7 @@ exports.getOpenJobsByCustomer = async (req, res) => {
             status: "open",
             deletedByCustomer: { $ne: true }
         })
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .sort({ createdAt: -1 });
 
         res.status(200).json({

@@ -4,6 +4,6 @@ const authorizeUser = require("../../middlewares/authorizedUser");
 const professionController = require("../../controllers/customer/customerProfessionController");
 
 // Get all professions
-router.get("/professions", authorizeUser.authenticateUser, authorizeUser.isCustomer, professionController.getProfession);
+router.get("/", authorizeUser.authenticateUser, authorizeUser.isCustomer, professionController.getProfession);
 
 module.exports = router;

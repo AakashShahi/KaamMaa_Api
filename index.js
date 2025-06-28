@@ -13,6 +13,7 @@ const workerReviewRouter = require("./routes/worker/workerReviewRoute")
 const adminVerificationRouter = require("./routes/admin/adminVerifiicationRoute")
 const adminReviewRouter = require("./routes/admin/adminReviewRoue")
 const adminRoute = require("./routes/admin/adminRoute")
+const customerProfessionRouter = require("./routes/customer/customerProfessionRoute")
 
 const path = require("path")
 
@@ -54,6 +55,7 @@ app.use("/api/worker/reviews", workerReviewRouter)
 
 //Customer CRUD route
 app.use("/api/customer", customerJobRouter)
+app.use("/api/customer/profession", customerProfessionRouter)
 
 
 module.exports = app

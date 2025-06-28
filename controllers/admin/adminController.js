@@ -7,7 +7,7 @@ exports.getAdminProfile = async (req, res) => {
             .select("-password");
 
         if (!admin || admin.role !== "admin") {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(404).json({ success: false, message: "Admin not found" });
         }
 
         return res.status(200).json({
@@ -17,7 +17,7 @@ exports.getAdminProfile = async (req, res) => {
         });
     } catch (err) {
         console.error("Error getting admin profile:", err);
-        return res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -44,7 +44,7 @@ exports.updateAdminProfile = async (req, res) => {
         }).select("-password");
 
         if (!updatedAdmin || updatedAdmin.role !== "admin") {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(404).json({ success: false, message: "Admin not found" });
         }
 
         return res.status(200).json({

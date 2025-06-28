@@ -7,6 +7,6 @@ const startJobExpiryCron = require("./controllers/job/jobStatusSchedule"); // ad
 startJobExpiryCron();
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log("🚀 Server Running on port", PORT);
 });

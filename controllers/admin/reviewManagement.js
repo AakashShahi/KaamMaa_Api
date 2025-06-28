@@ -30,7 +30,7 @@ exports.getAllReviewsForAdmin = async (req, res) => {
             },
         });
     } catch (err) {
-        res.status(500).json({ message: "Failed to fetch reviews", error: err.message });
+        res.status(500).json({ success: false, message: "Failed to fetch reviews", error: err.message });
     }
 };
 
@@ -41,11 +41,11 @@ exports.deleteReviewByAdmin = async (req, res) => {
         const deleted = await Review.findByIdAndDelete(reviewId);
 
         if (!deleted) {
-            return res.status(404).json({ message: "Review not found" });
+            return res.status(404).json({ success: false, message: "Review not found" });
         }
 
-        res.status(200).json({ message: "Review permanently deleted." });
+        res.status(200).json({ success: true, message: "Review permanently deleted." });
     } catch (err) {
-        res.status(500).json({ message: "Failed to delete review", error: err.message });
+        res.status(500).json({ success: false, message: "Failed to delete review", error: err.message });
     }
 };

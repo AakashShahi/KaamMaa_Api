@@ -3,7 +3,7 @@ const cron = require("node-cron");
 const moment = require("moment");
 
 function startJobExpiryCron() {
-    cron.schedule("*/10 * * * *", async () => {
+    cron.schedule("*/1 * * * *", async () => {
         console.log("⏰ Checking for expired jobs...");
 
         const now = new Date();

@@ -6,23 +6,29 @@ exports.getAllReviewsForAdmin = async (req, res) => {
     const search = req.query.search || "";
 
     try {
-        const filter = search
-            ? { comment: { $regex: search, $options: "i" } }
-            : {};
-
-        const total = await Review.countDocuments(filter);
-
-        const reviews = await Review.find(filter)
+        // Fetch all reviews first (no filter yet)
+        let reviews = await Review.find({})
             .populate("workerId", "name email")
             .populate("customerId", "name email")
             .populate("jobId", "description date time icon location status")
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+            .sort({ createdAt: -1 });
+
+        // Apply filtering manually after population
+        if (search) {
+            const regex = new RegExp(search, "i");
+            reviews = reviews.filter((review) => {
+                const commentMatch = regex.test(review.comment || "");
+                const workerNameMatch = regex.test(review.workerId?.name || "");
+                return commentMatch || workerNameMatch;
+            });
+        }
+
+        const total = reviews.length;
+        const paginatedReviews = reviews.slice((page - 1) * limit, page * limit);
 
         res.status(200).json({
             success: true,
-            data: reviews,
+            data: paginatedReviews,
             pagination: {
                 total,
                 page,
@@ -30,7 +36,11 @@ exports.getAllReviewsForAdmin = async (req, res) => {
             },
         });
     } catch (err) {
-        res.status(500).json({ success: false, message: "Failed to fetch reviews", error: err.message });
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch reviews",
+            error: err.message,
+        });
     }
 };
 

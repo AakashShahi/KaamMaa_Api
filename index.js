@@ -52,8 +52,6 @@ app.use("/api/worker/profession", workerProfessionRouter)
 app.use("/api/worker/reviews", workerReviewRouter)
 
 
-
-
 //Customer CRUD route
 app.use("/api/customer", customerJobRouter)
 app.use("/api/customer/profession", customerProfessionRouter)

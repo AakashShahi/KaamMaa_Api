@@ -91,6 +91,41 @@ exports.acceptWorkerForJob = async (req, res) => {
     }
 };
 
+// Reject worker request (for publicly posted jobs)
+exports.rejectWorkerForJob = async (req, res) => {
+    try {
+        const { jobId } = req.body;
+
+        const job = await Job.findById(jobId);
+
+        // Check if job exists and belongs to the current customer
+        if (!job || job.postedBy.toString() !== req.user._id.toString()) {
+            return res.status(404).json({ success: false, message: "Job not found or unauthorized" });
+        }
+
+        // Check if job is in requested status (i.e., worker has applied)
+        if (!job.assignedTo || job.status !== "requested") {
+            return res.status(400).json({ success: false, message: "No pending worker request to reject" });
+        }
+
+        // Revert job to open state and clear assigned worker
+        job.assignedTo = null;
+        job.status = "open";
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Worker request rejected. Job is now open for other workers.",
+            data: job,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to reject the worker request",
+            error: err.message,
+        });
+    }
+};
 exports.submitReview = async (req, res) => {
     try {
         const { jobId, rating, comment } = req.body;
@@ -141,7 +176,7 @@ exports.getRequestedJobs = async (req, res) => {
             status: "requested",
             assignedTo: { $ne: null }
         })
-            .populate("assignedTo", "name email location profilePic") // info about requesting worker
+            .populate("assignedTo", "name email location profilePic phone isVerified") // info about requesting worker
             .populate("category", "name")
             .sort({ createdAt: -1 });
 
@@ -295,5 +330,30 @@ exports.updateJob = async (req, res) => {
         res.status(200).json({ success: true, message: "Job updated successfully", data: job });
     } catch (err) {
         res.status(500).json({ success: false, message: "Failed to update job", error: err.message });
+    }
+};
+
+exports.getAssignedJobsForCustomer = async (req, res) => {
+    try {
+        const jobs = await Job.find({
+            postedBy: req.user._id,
+            status: "assigned",
+            deletedByCustomer: { $ne: true },
+        })
+            .populate("assignedTo", "name email location profilePic phone")
+            .populate("category", "name icon category")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: jobs,
+            message: "Assigned jobs fetched successfully",
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch assigned jobs",
+            error: err.message,
+        });
     }
 };

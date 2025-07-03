@@ -39,4 +39,6 @@ router.delete("/jobs/:jobId", authorizeUser.authenticateUser, authorizeUser.isCu
 
 router.get("/jobs/assigned", authorizeUser.authenticateUser, authorizeUser.isCustomer, jobController.getAssignedJobsForCustomer)
 
+router.get("/jobs/in-progress", authorizeUser.authenticateUser, authorizeUser.isCustomer, jobController.getInProgressJobsForCustomer)
+
 module.exports = router;

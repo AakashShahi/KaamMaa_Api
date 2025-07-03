@@ -357,3 +357,29 @@ exports.getAssignedJobsForCustomer = async (req, res) => {
         });
     }
 };
+
+// GET /jobs/in-progress/customer
+exports.getInProgressJobsForCustomer = async (req, res) => {
+    try {
+        const jobs = await Job.find({
+            postedBy: req.user._id,
+            status: "in-progress",
+            deletedByCustomer: { $ne: true },
+        })
+            .populate("assignedTo", "name email location profilePic phone isVerified")
+            .populate("category", "name icon category")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: jobs,
+            message: "In-progress jobs fetched successfully",
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch in-progress jobs",
+            error: err.message,
+        });
+    }
+};

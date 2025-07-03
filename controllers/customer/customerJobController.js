@@ -77,7 +77,7 @@ exports.acceptWorkerForJob = async (req, res) => {
         const job = await Job.findById(jobId);
         if (!job) return res.status(404).json({ success: false, message: "Job not found" });
 
-        if (job.assignedTo && job.status !== "open") {
+        if (job.assignedTo && job.status == "in-progress") {
             return res.status(400).json({ success: false, message: "Job already taken" });
         }
 

@@ -15,6 +15,8 @@ const adminReviewRouter = require("./routes/admin/adminReviewRoue")
 const adminRoute = require("./routes/admin/adminRoute")
 const customerProfessionRouter = require("./routes/customer/customerProfessionRoute")
 const customerWorkerRouter = require("./routes/customer/customerWorkerRoute")
+const chatRoutes = require("./routes/chat/chatRoute");
+
 
 const path = require("path")
 
@@ -56,6 +58,9 @@ app.use("/api/worker/reviews", workerReviewRouter)
 app.use("/api/customer", customerJobRouter)
 app.use("/api/customer/profession", customerProfessionRouter)
 app.use("/api/customer/worker", customerWorkerRouter)
+
+//chat
+app.use("/api/chat", chatRoutes);
 
 
 module.exports = app

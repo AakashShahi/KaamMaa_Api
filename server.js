@@ -1,27 +1,40 @@
-// 📄 server.js
 require("dotenv").config();
-const app = require("./index");
 const http = require("http");
 const { Server } = require("socket.io");
-const startJobExpiryCron = require("./controllers/job/jobStatusSchedule"); // adjust path
-const startWorkerAvailabilityCron = require("./controllers/job/startWorkerAvailabiliyCron"); // adjust path
+const app = require("./index");
 
+const startJobExpiryCron = require("./controllers/job/jobStatusSchedule");
+const startWorkerAvailabilityCron = require("./controllers/job/startWorkerAvailabiliyCron");
+
+// 1. Create HTTP server from Express app
 const server = http.createServer(app);
 
-// Use this to share io instance globally
+// 2. Initialize Socket.IO instance
+const io = new Server(server, {
+    cors: {
+        origin: "*", // Replace '*' with specific frontend origin in production
+        methods: ["GET", "POST"],
+    },
+});
+
+// 3. Attach `io` instance to Express app so it can be accessed globally (e.g., in controllers)
 app.set("io", io);
 
-// Socket connection setup
+// 4. Handle Socket.IO events
 io.on("connection", (socket) => {
     console.log("🟢 New user connected:", socket.id);
 
     socket.on("joinRoom", ({ jobId }) => {
-        socket.join(jobId);
-        console.log(`User joined room: ${jobId}`);
+        if (jobId) {
+            socket.join(jobId);
+            console.log(`User joined room: ${jobId}`);
+        }
     });
 
     socket.on("sendMessage", (message) => {
-        io.to(message.jobId).emit("receiveMessage", message); // Broadcast to room
+        if (message?.jobId) {
+            io.to(message.jobId).emit("receiveMessage", message);
+        }
     });
 
     socket.on("disconnect", () => {
@@ -29,19 +42,12 @@ io.on("connection", (socket) => {
     });
 });
 
-const io = new Server(server, {
-    cors: {
-        origin: "*", // you can specify frontend URL here instead of *
-        methods: ["GET", "POST"]
-    }
-});
-
-
-// Start your cron job
+// 5. Start scheduled background tasks (cron jobs)
 startJobExpiryCron();
 startWorkerAvailabilityCron();
 
-const PORT = process.env.PORT;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log("🚀 Server Running on port", PORT);
+// 6. Start server
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

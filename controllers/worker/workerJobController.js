@@ -191,7 +191,7 @@ exports.getInProgressJobs = async (req, res) => {
             status: "in-progress",
             deletedByWorker: false
         })
-            .populate("postedBy", "name location phone")
+            .populate("postedBy", "name location phone username")
             .populate("category", "name icon")
             .sort({ createdAt: -1 });
 

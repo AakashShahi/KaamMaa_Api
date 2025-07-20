@@ -12,8 +12,9 @@ const server = http.createServer(app);
 // 2. Initialize Socket.IO instance
 const io = new Server(server, {
     cors: {
-        origin: "*", // Replace '*' with specific frontend origin in production
+        origin: "http://localhost:5173", // <--- CHANGE THIS: Specify the exact origin of your React app
         methods: ["GET", "POST"],
+        credentials: true // <--- IMPORTANT: Add this to explicitly allow credentials
     },
 });
 

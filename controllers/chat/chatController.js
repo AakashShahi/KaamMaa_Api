@@ -3,7 +3,7 @@ const Chat = require("../../models/Chat");
 exports.saveMessage = async (req, res) => {
     try {
         const { jobId, content } = req.body;
-        const senderId = req.user._id;
+        const senderId = req.user._id; // This is the actual user ID (string)
 
         // Find chat by jobId
         let chat = await Chat.findOne({ jobId });
@@ -27,16 +27,44 @@ exports.saveMessage = async (req, res) => {
 
         // Add new message
         chat.messages.push({
-            senderId,
+            senderId, // This is the string ID
             content,
         });
 
         await chat.save();
 
+        // --- NEW: Fetch the newly saved message with populated sender details ---
+        // Find the chat again, but this time populate the last message's senderId
+        // This ensures the emitted message has the same structure as history messages
+        const updatedChat = await Chat.findOne({ jobId }).populate({
+            path: 'messages.senderId',
+            select: 'name profilePic role _id' // Select the fields needed by Flutter
+        });
+
+        // Get the last message, which is the one just saved
+        const newMessage = updatedChat.messages[updatedChat.messages.length - 1];
+
+        // --- NEW: Emit the fully populated message via Socket.IO ---
+        // Access the `io` instance from the Express app
+        const io = req.app.get("io");
+        if (io) {
+            io.to(jobId).emit("receiveMessage", {
+                jobId: jobId,
+                content: newMessage.content,
+                senderId: newMessage.senderId, // This is now the populated user object
+                createdAt: newMessage.createdAt,
+                _id: newMessage._id // Include message ID if needed by client
+            });
+            console.log(`📡 Emitted new message to room ${jobId}:`, newMessage.content);
+        } else {
+            console.warn("Socket.IO instance not found on app. Skipping real-time emit.");
+        }
+        // --- END NEW ---
+
         res.status(200).json({
             success: true,
             message: "Message saved",
-            chat,
+            chat: updatedChat, // Respond with the updated chat, including populated sender
         });
     } catch (err) {
         console.error("❌ Error saving message:", err);
@@ -54,7 +82,7 @@ exports.getChatHistory = async (req, res) => {
 
         const chat = await Chat.findOne({ jobId }).populate(
             "messages.senderId",
-            "name profilePic role"
+            "name profilePic role _id" // Ensure _id is selected for consistency
         );
 
         if (!chat) {

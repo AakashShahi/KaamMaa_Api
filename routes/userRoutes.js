@@ -16,4 +16,14 @@ router.post(
     userController.loginUser
 )
 
+router.post(
+    "/request-reset",
+    userController.sendResetLink
+)
+
+router.post(
+    "/reset-password/:token",
+    userController.resetPassword
+)
+
 module.exports = router

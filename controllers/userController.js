@@ -1,6 +1,7 @@
 const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const nodemailer = require("nodemailer")
 
 //Registration COntroller
 exports.regiterUser = async (req, res) => {
@@ -113,6 +114,71 @@ exports.loginUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json(
             { "success": false, "message": "Server error" }
+        )
+    }
+}
+
+const transporter = nodemailer.createTransport(
+    {
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    }
+)
+
+exports.sendResetLink = async (req, res) => {
+    const { email } = req.body
+    try {
+        const user = await User.findOne({ email })
+        if (!user) return res.status(404).json({
+            success: false,
+            message: "User not"
+        })
+        const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "15m" })
+        const resetUrl = process.env.CLIENT_URL + "/reset/password/" + token
+        const mailOptions = {
+            from: `"My App" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: "Reset your password",
+            html: `<p>Reset your password.. ${resetUrl}</p>`
+        }
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.log(err);
+                return res.status(403).json({
+                    success: false,
+                    message: "Failed"
+                })
+            }
+            if (info) console.log(info);
+            return res.status(200).json({
+                success: true,
+                message: "Success"
+            })
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        })
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    const { token } = req.params
+    const { password } = req.body
+
+    try {
+        const decoded = jwt.verify(token, process.env.SECRET)
+        const hased = await bcrypt.hash(password, 10)
+
+        await User.findByIdAndUpdate(decoded.id, { password: hased })
+        return res.status(200).json({ sucess: true, message: "Password updated" })
+    } catch (error) {
+        return res.status(500).json(
+            { "success": false, "message": "Server error/Token invalid" }
         )
     }
 }

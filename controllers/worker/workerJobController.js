@@ -49,7 +49,7 @@ exports.getPublicJobs = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const publicJobs = await Job.find(filter)
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .populate("postedBy", "name location phone")
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -110,7 +110,7 @@ exports.getRequestedJobs = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name location phone")
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -168,7 +168,7 @@ exports.getAssignedJobs = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name location phone")
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .sort({ createdAt: -1 });
 
         res.status(200).json(
@@ -192,7 +192,7 @@ exports.getInProgressJobs = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name location phone username")
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .sort({ createdAt: -1 });
 
         return res.status(200).json(
@@ -262,7 +262,7 @@ exports.getFailedJobsForWorker = async (req, res) => {
             deletedByWorker: false
         })
             .populate("postedBy", "name email phone")
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .sort({ createdAt: -1 });
 
         res.status(200).json(
@@ -313,7 +313,7 @@ exports.getCompletedJobs = async (req, res) => {
 
         const jobs = await Job.find(filter)
             .populate("postedBy", "name location phone")
-            .populate("category", "name icon")
+            .populate("category", "name icon category")
             .populate("review", "rating comment")
             .sort({ createdAt: -1 })
             .skip(skip)

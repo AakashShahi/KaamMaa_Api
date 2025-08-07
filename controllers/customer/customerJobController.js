@@ -198,7 +198,7 @@ exports.getFailedJobsForCustomer = async (req, res) => {
             deletedByCustomer: false
         })
             .populate("assignedTo", "name email")
-            .populate("category", "name")
+            .populate("category", "name icon category")
             .sort({ createdAt: -1 });
 
         res.status(200).json({

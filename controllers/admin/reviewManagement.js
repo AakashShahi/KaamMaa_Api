@@ -8,8 +8,8 @@ exports.getAllReviewsForAdmin = async (req, res) => {
     try {
         // Fetch all reviews first (no filter yet)
         let reviews = await Review.find({})
-            .populate("workerId", "name email")
-            .populate("customerId", "name email")
+            .populate("workerId", "name email username")
+            .populate("customerId", "name email username")
             .populate("jobId", "description date time icon location status")
             .sort({ createdAt: -1 });
 

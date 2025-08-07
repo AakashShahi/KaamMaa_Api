@@ -19,6 +19,7 @@ const chatRoutes = require("./routes/chat/chatRoute");
 const customerRoute = require("./routes/customer/customerRoute")
 const customerReviewRoute = require("./routes/customer/customerReviewRoute")
 const adminJobRoutes = require("./routes/admin/adminJobRoute")
+const customerNotificationRoute = require("./routes/customer/customerNotificationRoute")
 
 
 const path = require("path")
@@ -64,6 +65,7 @@ app.use("/api/customer/profession", customerProfessionRouter)
 app.use("/api/customer/worker", customerWorkerRouter)
 app.use("/api/customer", customerRoute)
 app.use("/api/customer/review", customerReviewRoute)
+app.use("/api/customer/notifications", customerNotificationRoute)
 
 
 //chat
